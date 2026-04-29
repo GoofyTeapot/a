@@ -10,6 +10,21 @@
       text-align: center;
       margin: 0;
       padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Blurred background image container */
+    #bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      filter: blur(20px) brightness(0.4);
+      z-index: -1;
     }
 
     video {
@@ -29,28 +44,62 @@
       font-size: 16px;
     }
 
+    input, textarea {
+      width: 280px;
+      margin-top: 10px;
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+      font-size: 14px;
+    }
+
     .gallery {
       display: grid;
-      grid-template-columns: repeat(auto-fill, 150px);
-      gap: 10px;
+      grid-template-columns: repeat(auto-fill, 180px);
+      gap: 15px;
       justify-content: center;
       margin-top: 20px;
     }
 
-    .gallery img {
-      width: 150px;
-      height: 150px;
+    .item {
+      background: rgba(255,255,255,0.1);
+      padding: 10px;
+      border-radius: 10px;
+      backdrop-filter: blur(5px);
+    }
+
+    .item img {
+      width: 100%;
+      height: 140px;
       object-fit: cover;
       border-radius: 8px;
+    }
+
+    .name {
+      font-weight: bold;
+      margin-top: 5px;
+    }
+
+    .desc {
+      font-size: 13px;
+      opacity: 0.8;
     }
   </style>
 </head>
 <body>
 
+  <div id="bg"></div>
+
   <h1>Camera Gallery</h1>
 
   <video id="camera" autoplay playsinline></video>
   <br>
+
+  <input id="nameInput" placeholder="Name for this picture">
+  <br>
+  <textarea id="descInput" placeholder="Description" rows="2"></textarea>
+  <br>
+
   <button id="capture">Take Picture</button>
 
   <h2>Your Gallery</h2>
@@ -60,6 +109,12 @@
     const video = document.getElementById("camera");
     const captureBtn = document.getElementById("capture");
     const gallery = document.getElementById("gallery");
+    const bg = document.getElementById("bg");
+
+    const nameInput = document.getElementById("nameInput");
+    const descInput = document.getElementById("descInput");
+
+    let firstImageSet = false;
 
     navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => video.srcObject = stream);
@@ -72,10 +127,35 @@
       const ctx = canvas.getContext("2d");
       ctx.drawImage(video, 0, 0);
 
-      const img = document.createElement("img");
-      img.src = canvas.toDataURL("image/png");
+      const imgData = canvas.toDataURL("image/png");
 
-      gallery.appendChild(img);
+      if (!firstImageSet) {
+        bg.style.backgroundImage = `url(${imgData})`;
+        firstImageSet = true;
+      }
+
+      const item = document.createElement("div");
+      item.className = "item";
+
+      const img = document.createElement("img");
+      img.src = imgData;
+
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = nameInput.value || "Untitled";
+
+      const desc = document.createElement("div");
+      desc.className = "desc";
+      desc.textContent = descInput.value || "";
+
+      item.appendChild(img);
+      item.appendChild(name);
+      item.appendChild(desc);
+
+      gallery.appendChild(item);
+
+      nameInput.value = "";
+      descInput.value = "";
     };
   </script>
 
