@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Camera Gallery</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #111;
+      color: white;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    video {
+      width: 300px;
+      border-radius: 10px;
+      border: 2px solid #444;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background: #4caf50;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 150px);
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .gallery img {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Camera Gallery</h1>
+
+  <video id="camera" autoplay playsinline></video>
+  <br>
+  <button id="capture">Take Picture</button>
+
+  <h2>Your Gallery</h2>
+  <div id="gallery" class="gallery"></div>
+
+  <script>
+    const video = document.getElementById("camera");
+    const captureBtn = document.getElementById("capture");
+    const gallery = document.getElementById("gallery");
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => video.srcObject = stream);
+
+    captureBtn.onclick = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0);
+
+      const img = document.createElement("img");
+      img.src = canvas.toDataURL("image/png");
+
+      gallery.appendChild(img);
+    };
+  </script>
+
+</body>
+</html>
